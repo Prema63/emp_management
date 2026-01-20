@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Calendar, Plus, X } from "lucide-react";
 import { BASE_URL } from "../lib/lib";
 import { toast } from "react-toastify";
-import axios from "axios";
 
 const HolidayManagement = () => {
   const [holidays, setHolidays] = useState([]);
@@ -20,11 +19,7 @@ const HolidayManagement = () => {
   const fetchHolidays = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${BASE_URL}api/holidays/`, {
-        method: "GET",
-        credentials: "include", 
-      });
-
+      const response = await fetch(`${BASE_URL}api/holidays/`);
       const data = await response.json();
       setHolidays(data.holidays || []);
     } catch (err) {
@@ -45,30 +40,30 @@ const HolidayManagement = () => {
     }
 
     try {
-      const response = await axios.post(
-        `${BASE_URL}api/holidays/`,
-        {
+      const response = await fetch(`${BASE_URL}api/holidays/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           holiday_date: selectedDate,
           holiday_name: holidayName.trim(),
-        },
-        {
-          withCredentials: true, 
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      );
+        }),
+      });
 
-      const data = response.data;
+      const data = await response.json();
 
-      if (!response.status || response.status !== 200) {
+      if (!response.ok) {
         throw new Error(data.error || "Failed to add holiday");
       }
 
-      console.log("Holiday added successfully:", data);
+      setHolidays((prev) => [
+        ...prev,
+        { holiday_name: holidayName.trim(), holiday_date: selectedDate },
+      ]);
 
       setSuccess("Holiday added successfully!");
-      toast.success("Holiday added succesfully")
+      // toast.success("Holiday added succesfully")
       setSelectedDate("");
       setHolidayName("");
       fetchHolidays();

@@ -27,15 +27,17 @@ const Attendance = () => {
     limit: 10,
     totalPages: 0,
   });
-  
+
   useEffect(() => {
+      console.log(userData)
+
     if (!isloading && userData) {
       const role = userData.employee?.role;
       if (role !== "owner" && role !== "hr") {
         navigate("/dashboard");
       }
     }
-  }, [isloading, userData, navigate]);
+  }, [isloading ]);
 
   useEffect(() => {
     fetchAttendance();
@@ -307,6 +309,7 @@ const Attendance = () => {
 
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={pagination.page === 1}
                   className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
