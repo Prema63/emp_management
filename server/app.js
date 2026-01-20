@@ -27,7 +27,6 @@ app.use(
   })
 );
 
-// app.options("/*", cors());
 
 async function createAllTables() {
   await createEmployeeTable();
