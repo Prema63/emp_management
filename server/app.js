@@ -22,7 +22,7 @@ app.use(
   cors({
     origin: true, 
     credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE" ],
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
@@ -37,6 +37,11 @@ async function createAllTables() {
 }
 
 createAllTables();
+
+
+app.get("/", (req, res) => {
+  res.send("Server is running successfully");
+});
 
 //  routes
 app.use("/api/employees", empRouter);
