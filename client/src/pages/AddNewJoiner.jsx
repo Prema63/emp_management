@@ -105,6 +105,8 @@ export default function AddNewJoiner() {
           role: formData.role,
         },
         {
+          withCredentials: true,
+
           headers: {
             "Content-Type": "application/json",
           },

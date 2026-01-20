@@ -80,9 +80,9 @@ export default function LoginPage() {
           role: formData.role,
         },
         {
+          withCredentials: true, 
           headers: {
             "Content-Type": "application/json",
-            credentials: "true",
           },
         },
       );
