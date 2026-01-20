@@ -84,7 +84,7 @@ const navItems = [
     label: "Attendance", 
     icon: Clock, 
     path: "attendance",
-    show: role === "hr" || role === "owner"
+    show: role === "hr" 
   },
 
   // Salary Slip → show all EXCEPT owner
