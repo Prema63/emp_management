@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Calendar, Plus, X } from "lucide-react";
 import { BASE_URL } from "../lib/lib";
 import { toast } from "react-toastify";
@@ -12,16 +12,16 @@ const HolidayManagement = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    fetchHolidays();
-  }, []);
-
   const fetchHolidays = async () => {
     try {
       setLoading(true);
       const response = await fetch(`${BASE_URL}api/holidays/`);
       const data = await response.json();
-      setHolidays(data.holidays || []);
+      if (data.holidays && Array.isArray(data.holidays)) {
+        setHolidays(data.holidays.filter((h) => h && h.holiday_date));
+      } else {
+        setHolidays([]);
+      }
     } catch (err) {
       console.error("Error fetching holidays:", err);
       setError("Failed to fetch holidays");
@@ -29,6 +29,10 @@ const HolidayManagement = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchHolidays();
+  }, []);
 
   const handleAddHoliday = async () => {
     setError("");
@@ -42,9 +46,7 @@ const HolidayManagement = () => {
     try {
       const response = await fetch(`${BASE_URL}api/holidays/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           holiday_date: selectedDate,
           holiday_name: holidayName.trim(),
@@ -57,27 +59,27 @@ const HolidayManagement = () => {
         throw new Error(data.error || "Failed to add holiday");
       }
 
-      setHolidays((prev) => [
-        ...prev,
-        { holiday_name: holidayName.trim(), holiday_date: selectedDate },
-      ]);
+      if (data.holiday && data.holiday.holiday_date) {
+        setHolidays((prev) => [...prev, data.holiday]);
+      } else {
+        await fetchHolidays();
+      }
 
       setSuccess("Holiday added successfully!");
-      // toast.success("Holiday added succesfully")
       setSelectedDate("");
       setHolidayName("");
-      fetchHolidays();
 
       setTimeout(() => {
         setShowAddModal(false);
         setSuccess("");
       }, 1500);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Something went wrong");
     }
   };
 
   const formatDate = (dateStr) => {
+    if (!dateStr) return "";
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -86,32 +88,23 @@ const HolidayManagement = () => {
     });
   };
 
-  const groupHolidaysByMonth = () => {
+  const groupedHolidays = useMemo(() => {
     const grouped = {};
     holidays.forEach((holiday) => {
+      if (!holiday || !holiday.holiday_date) return;
+
       const date = new Date(holiday.holiday_date);
       const monthYear = date.toLocaleDateString("en-US", {
         month: "long",
         year: "numeric",
       });
 
-      if (!grouped[monthYear]) {
-        grouped[monthYear] = [];
-      }
+      if (!grouped[monthYear]) grouped[monthYear] = [];
       grouped[monthYear].push(holiday);
     });
     return grouped;
-  };
+  }, [holidays]);
 
-  const groupedHolidays = groupHolidaysByMonth();
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="text-slate-600 text-lg">Loading holidays...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">

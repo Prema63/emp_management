@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   Search,
   ChevronLeft,
@@ -11,70 +11,87 @@ import {
 } from "lucide-react";
 import { BASE_URL } from "../lib/lib";
 import axios from "axios";
-import { setIsloading } from "../redux/slices/authSlice";
 import { toast } from "react-toastify";
 
 const Attendance = () => {
-  const { userData, isloading } = useSelector((state) => state.auth);
+  const { userData,isloading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const [leaves, setLeaves] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
     limit: 10,
     totalPages: 0,
   });
+  const [tableLoading, setTableLoading] = useState(false);
 
+  
   useEffect(() => {
-      console.log(userData)
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-    if (!isloading && userData) {
+  
+  useEffect(() => {
+    if (userData) {
       const role = userData.employee?.role;
       if (role !== "owner" && role !== "hr") {
         navigate("/dashboard");
       }
     }
-  }, [isloading ]);
+  }, [userData, navigate]);
 
   useEffect(() => {
     fetchAttendance();
   }, [pagination.page, pagination.limit]);
 
   const fetchAttendance = async () => {
+    setTableLoading(true);
+
     try {
-      dispatch(setIsloading(true));
       const res = await axios.get(
         `${BASE_URL}api/attendance?page=${pagination.page}&limit=${pagination.limit}`,
-        {
-          withCredentials: true,
-        },
+        { withCredentials: true },
       );
-      const data = await res.data;
+      const data = res.data;
 
-      setLeaves(data.leaves || []);
+     
+      const leavesData = data.leaves || [];
+      const pag = data.pagination || { total: 0, totalPages: 0 };
+
+      setLeaves(leavesData);
       setPagination((prev) => ({
         ...prev,
-        total: data.pagination.total,
-        totalPages: data.pagination.totalPages,
+        total: pag.total || 0,
+        totalPages: pag.totalPages || 0,
       }));
-    } catch (error) {
-      toast.error("Error fetching attendance:", error);
+    } catch (err) {
+      toast.error("Error fetching attendance");
       setLeaves([]);
+      setPagination((prev) => ({ ...prev, total: 0, totalPages: 0 }));
     } finally {
-      dispatch(setIsloading(false));
+      setTableLoading(false); 
     }
   };
 
-  const filteredLeaves = leaves.filter(
-    (leave) =>
-      leave.employee_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      leave.employee_id?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  // Filtered leaves 
+  const filteredLeaves = useMemo(() => {
+    return leaves.filter(
+      (leave) =>
+        leave.employee_name
+          ?.toLowerCase()
+          .includes(debouncedSearch.toLowerCase()) ||
+        leave.employee_id
+          ?.toLowerCase()
+          .includes(debouncedSearch.toLowerCase()),
+    );
+  }, [leaves, debouncedSearch]);
 
   const formatDate = (dateString) => {
+    if (!dateString) return "-";
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -96,7 +113,6 @@ const Attendance = () => {
       page: 1,
     }));
   };
-
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
