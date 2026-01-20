@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Calendar, Plus, X } from "lucide-react";
 import { BASE_URL } from "../lib/lib";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const HolidayManagement = () => {
   const [holidays, setHolidays] = useState([]);
@@ -21,7 +22,7 @@ const HolidayManagement = () => {
       setLoading(true);
       const response = await fetch(`${BASE_URL}api/holidays/`, {
         method: "GET",
-        credentials: "include", // ✅ required for cookie-based auth
+        credentials: "include", 
       });
 
       const data = await response.json();
@@ -67,7 +68,7 @@ const HolidayManagement = () => {
       console.log("Holiday added successfully:", data);
 
       setSuccess("Holiday added successfully!");
-      // toast.success("Holiday added succesfully")
+      toast.success("Holiday added succesfully")
       setSelectedDate("");
       setHolidayName("");
       fetchHolidays();
