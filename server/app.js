@@ -16,18 +16,17 @@ import cors from "cors";
 
 const app = express();  
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 
 app.use(
   cors({
     origin: true, 
     credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE" ],
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 
-app.options("*", cors());
 
 async function createAllTables() {
   await createEmployeeTable();
@@ -38,6 +37,11 @@ async function createAllTables() {
 }
 
 createAllTables();
+
+
+app.get("/", (req, res) => {
+  res.send("Server is running successfully");
+});
 
 //  routes
 app.use("/api/employees", empRouter);
