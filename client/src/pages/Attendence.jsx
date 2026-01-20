@@ -14,11 +14,8 @@ import axios from "axios";
 import { setIsloading } from "../redux/slices/authSlice";
 import { toast } from "react-toastify";
 
-
 const Attendance = () => {
-  const { userData, isloading } = useSelector(
-    (state) => state.auth,
-  );
+  const { userData, isloading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -30,16 +27,13 @@ const Attendance = () => {
     limit: 10,
     totalPages: 0,
   });
-
+  
   useEffect(() => {
-    if (
-      !(
-        userData?.employee?.role === "owner" ||
-        userData?.employee?.role === "hr"
-      ) &&
-      !isloading
-    ) {
-      navigate("/dashboard");
+    if (!isloading && userData) {
+      const role = userData.employee?.role;
+      if (role !== "owner" && role !== "hr") {
+        navigate("/dashboard");
+      }
     }
   }, [isloading, userData, navigate]);
 
@@ -49,11 +43,14 @@ const Attendance = () => {
 
   const fetchAttendance = async () => {
     try {
-      dispatch(setIsloading(true))
-      const res = await axios.get(`${BASE_URL}api/attendance?page=${pagination.page}&limit=${pagination.limit}`, {
-        withCredentials: true,
-      });
-      const data = await res.data 
+      dispatch(setIsloading(true));
+      const res = await axios.get(
+        `${BASE_URL}api/attendance?page=${pagination.page}&limit=${pagination.limit}`,
+        {
+          withCredentials: true,
+        },
+      );
+      const data = await res.data;
 
       setLeaves(data.leaves || []);
       setPagination((prev) => ({
@@ -364,7 +361,6 @@ const Attendance = () => {
             </div>
           </div>
         )}
-        
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { BASE_URL } from "../lib/lib";
+import { toast } from "react-toastify";
 
 export default function AddNewJoiner() {
   const [formData, setFormData] = useState({
@@ -114,7 +115,7 @@ export default function AddNewJoiner() {
       );
 
       console.log("API Response:", response.data);
-      alert("Employee registered successfully!");
+      toast.success("Employee registered successfully!");
 
       // Reset form
       setFormData({
@@ -134,7 +135,7 @@ export default function AddNewJoiner() {
       if (error.response?.data?.message) {
         alert(error.response.data.message);
       } else {
-        alert("Something went wrong. Please try again.");
+        toast.error("Something went wrong. Please try again.");
       }
     }
   };
