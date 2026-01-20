@@ -10,7 +10,7 @@ import { login } from "../redux/slices/authSlice.js";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
-    empID: "",
+    empId: "",
     password: "",
     role: "",
   });
@@ -48,8 +48,8 @@ export default function LoginPage() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.empID.trim()) {
-      newErrors.empID = "Employee ID is required";
+    if (!formData.empId.trim()) {
+      newErrors.empId = "Employee ID is required";
     }
 
     if (!formData.password) {
@@ -75,7 +75,7 @@ export default function LoginPage() {
       const response = await axios.post(
         `${BASE_URL}api/employees/login`,
         {
-          empId: formData.empID,
+          empId: formData.empId,
           password: formData.password,
           role: formData.role,
         },
@@ -136,8 +136,8 @@ export default function LoginPage() {
                 </div>
                 <input
                   type="text"
-                  name="empID"
-                  value={formData.empID}
+                  name="empId"
+                  value={formData.empId}
                   onChange={handleChange}
                   onKeyPress={handleKeyPress}
                   className={`w-full pl-10 pr-4 py-3 border ${
@@ -148,8 +148,8 @@ export default function LoginPage() {
                   placeholder="Enter your employee ID"
                 />
               </div>
-              {errors.empID && (
-                <p className="mt-1 text-sm text-red-500">{errors.empID}</p>
+              {errors.empId && (
+                <p className="mt-1 text-sm text-red-500">{errors.empId}</p>
               )}
             </div>
 

@@ -197,7 +197,7 @@ export const loginEmployee = async (req, res) => {
       SELECT e.*, m.name AS manager_name
       FROM employees e
       LEFT JOIN employees m ON e.manager_id = m.id
-      WHERE e.id = ${empId} AND e.role = ${role}
+      WHERE e.id = ${empId} AND LOWER(e.role) = ${role}
     `;
 
     if (empResult.length === 0) {
@@ -351,7 +351,7 @@ export async function getAllEmployeesWithManager(req, res) {
 
     const result = employees.map(emp => ({ ...emp }));
 
-     res.status(200).json({
+    res.status(200).json({
       message: "Employee created successfully",
       employeeData: result
     });
