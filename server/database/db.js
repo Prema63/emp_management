@@ -6,14 +6,27 @@ if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE URL is missing, please check .env file.");
 }
 
-export const sql = postgres(process.env.DATABASE_URL, { ssl: "require"});
+// export const sql = postgres(process.env.DATABASE_URL,
+//   {
+//     // ssl: "require"
+//     ssl:false,
+//   }
+// );
+
+
+const isProduction = process.env.NODE_ENV === "production";
+
+export const sql = postgres(process.env.DATABASE_URL, {
+  ssl: isProduction ? "require" : false,
+});
+
 
 (async () => {
- try {
-   const result = await sql`SELECT NOW()`;
-   console.log("DB Connected at:", result[0].now);
- } catch (error) {
-  
-  console.log(error)
- }
+  try {
+    const result = await sql`SELECT NOW()`;
+    console.log("DB Connected at:", result[0].now);
+  } catch (error) {
+
+    console.log(error)
+  }
 })();

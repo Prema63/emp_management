@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  client:
+    image: node:20
+    container_name: frontend_client
+    working_dir: /app
+    volumes:
+      - ./client:/app
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - postgres
+
+  server:
+    image: node:20
+    container_name: backend_server
+    working_dir: /app
+    volumes:
+      - ./server:/app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+    container_name: postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: Params
+      POSTGRES_PASSWORD: Prema@123
+      POSTGRES_DB: employee_DB
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:

@@ -5,7 +5,7 @@ import { BASE_URL } from "../lib/lib";
 
 export const authInitializer = async (dispatch) => {
   try {
-    // 1. Check token inside Cookie
+    // Check token inside Cookie
     const token = Cookies.get("token");
     if (!token) return; // No token → no login
 
