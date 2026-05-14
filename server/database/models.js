@@ -89,5 +89,6 @@ export async function createSalaryTable() {
     `
   } catch (error) {
     console.error("Error occur while creating salary table.");
+    console.log(error)
   }
 }
